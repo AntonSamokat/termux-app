@@ -46,6 +46,7 @@ public class SystemEventReceiver extends BroadcastReceiver {
             case Intent.ACTION_PACKAGE_ADDED:
             case Intent.ACTION_PACKAGE_REMOVED:
             case Intent.ACTION_PACKAGE_REPLACED:
+            case Intent.ACTION_MY_PACKAGE_REPLACED:
                 onActionPackageUpdated(context, intent);
                 break;
             default:
@@ -76,6 +77,8 @@ public class SystemEventReceiver extends BroadcastReceiver {
                 " event received for \"" + data.toString().replaceAll("^package:", "") + "\"");
             if (TermuxFileUtils.isTermuxFilesDirectoryAccessible(context, false, false) == null)
                 TermuxShellEnvironment.writeEnvironmentToFile(context);
+
+            runTermuxService(context);
         }
     }
 
@@ -83,7 +86,9 @@ public class SystemEventReceiver extends BroadcastReceiver {
 
     /**
      * Register {@link SystemEventReceiver} to listen to {@link Intent#ACTION_PACKAGE_ADDED},
-     * {@link Intent#ACTION_PACKAGE_REMOVED} and {@link Intent#ACTION_PACKAGE_REPLACED} broadcasts.
+     * {@link Intent#ACTION_PACKAGE_REPLACED}, {@link Intent#ACTION_MY_PACKAGE_REPLACED},
+     * {@link Intent#ACTION_PACKAGE_REMOVED} broadcasts.
+
      * They must be registered dynamically and cannot be registered implicitly in
      * the AndroidManifest.xml due to Android 8+ restrictions.
      *
@@ -94,6 +99,7 @@ public class SystemEventReceiver extends BroadcastReceiver {
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        intentFilter.addAction(Intent.ACTION_MY_PACKAGE_REPLACED);
         intentFilter.addDataScheme("package");
         context.registerReceiver(getInstance(), intentFilter);
     }
